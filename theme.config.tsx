@@ -2,12 +2,12 @@ import React from 'react'
 import { DocsThemeConfig } from 'nextra-theme-docs'
 
 const config: DocsThemeConfig = {
-  logo: <span>文档中心</span>,
+  logo: <span>FIRE 文档中心</span>,
+  toc: {
+    title: '目录'
+  },
   project: {
     link: 'https://github.com/404-atomic/docs-vercel',
-  },
-  chat: {
-    link: 'https://discord.com',
   },
   docsRepositoryBase: 'https://github.com/404-atomic/docs-vercel',
   footer: {
