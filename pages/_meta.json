@@ -15,7 +15,7 @@
   "reference-page": {
     "title": "校长参考"
   },
-  "test": {
+  "nav1": {
     "title": "技术文档",
     "type": "menu",
     "items": {
@@ -32,6 +32,18 @@
         "href": "https://github.com/Wysten-Hgg/llama-docs"
       }
     }
+  },
+  "ref": {
+    "title": "参考",
+    "type": "menu",
+    "display": "hidden",
+    "items": {
+      "adv-prompt": {
+        "title": "高级提示词",
+        "href": "/ref/adv-prompt"
+      }
+    }
   }
 }
+
 
