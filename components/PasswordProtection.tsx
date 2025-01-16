@@ -32,50 +32,20 @@ export function PasswordProtection({ children }: PasswordProtectionProps) {
   }
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100vh',
-      padding: '20px',
-      backgroundColor: '#f0f0f0',
-    }}>
-      <div style={{
-        maxWidth: '400px',
-        width: '100%',
-        padding: '20px',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-        backgroundColor: 'white',
-      }}>
-        <h1 style={{ textAlign: 'center', marginBottom: '20px' }}>需要密码访问</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen p-5 bg-gray-100">
+      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+        <h1 className="mb-6 text-2xl font-bold text-center">需要密码访问</h1>
         <form onSubmit={handleSubmit}>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="请输入密码"
-            style={{
-              width: '100%',
-              padding: '8px 12px',
-              marginBottom: '10px',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-            }}
+            className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {error && <p style={{ color: 'red', marginBottom: '10px' }}>{error === 'Incorrect password' ? '密码错误' : error}</p>}
+          {error && <p className="mb-4 text-sm text-red-500">{error}</p>}
           <button
-            type="submit"
-            style={{
-              width: '100%',
-              padding: '8px 12px',
-              backgroundColor: '#0070f3',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
+            className="w-full px-4 py-2 text-red bg-gray-100 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
           >
             确认
           </button>
