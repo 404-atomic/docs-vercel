@@ -33,6 +33,10 @@
       "llama": {
         "title": "LLaMA 模型文档",
         "href": "https://github.com/Wysten-Hgg/llama-docs"
+      },
+      "memo_server": {
+        "title": "Memo Server 文档",
+        "href": "https://github.com/404-atomic/memo_server"
       }
     }
   },
