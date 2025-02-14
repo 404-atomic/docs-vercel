@@ -40,6 +40,20 @@
       }
     }
   },
+  "nav2": {
+    "title": "官方网站",
+    "type": "menu",
+    "items": {
+      "future-ai-hub": {
+        "title": "Future AI Hub",
+        "href": "https://future-ai-landing-404-atomics-projects.vercel.app"
+      },
+      "trantor-labs-hub": {
+        "title": "Trantor Labs Hub",
+        "href": "https://trantorlabs-landing.vercel.app"
+      }
+    }
+  },
   "ref": {
     "title": "参考",
     "type": "menu",
