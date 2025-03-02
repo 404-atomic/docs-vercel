@@ -1,0 +1,17 @@
+{
+  "index": {
+    "title": "概述"
+  },
+  "structure": {
+    "title": "系统架构与环境设置"
+  },
+  "db_server": {
+    "title": "数据库层与后端服务层"
+  },
+  "summary": {
+    "title": "AI Soulmate项目技术选择理由"
+  },
+  "improve_and_ref": {
+    "title": "AI Soulmate系统改进建议与参考资源"
+  }
+} 

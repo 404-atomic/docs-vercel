@@ -1,0 +1,623 @@
+# AI Soulmate数据库层与后端服务层
+
+## 目录
+3. [数据库层配置](#数据库层配置-database-layer-configuration)
+   - [PostgreSQL配置](#postgresql配置-postgresql-configuration)
+   - [MongoDB配置](#mongodb配置-mongodb-configuration)
+   - [Pinecone配置](#pinecone配置-pinecone-configuration)
+   - [Redis配置](#redis配置-redis-configuration)
+4. [后端服务层](#后端服务层-backend-service-layer)
+   - [LangChain集成](#langchain集成-langchain-integration)
+   - [记忆管理器](#记忆管理器-memory-manager)
+   - [对话管理器](#对话管理器-conversation-manager)
+
+## 数据库层配置 (Database Layer Configuration)
+
+AI Soulmate系统使用四种不同类型的数据库来实现其多层次记忆架构，每种数据库有其特定作用。
+
+### PostgreSQL配置 (PostgreSQL Configuration)
+
+PostgreSQL用于存储结构化的用户和关系数据，包括用户档案、关系状态和交互历史。
+
+#### 数据库模式 (Database Schema)
+
+以下是简化的数据库模式：
+
+```sql
+-- 用户表
+CREATE TABLE users (
+    user_id UUID PRIMARY KEY,
+    name VARCHAR(255),
+    email VARCHAR(255) UNIQUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 关系表
+CREATE TABLE relationships (
+    relationship_id UUID PRIMARY KEY,
+    user_id UUID REFERENCES users(user_id),
+    soulmate_id VARCHAR(100),
+    stage VARCHAR(50) DEFAULT 'initial',
+    closeness_score FLOAT DEFAULT 0.0
+);
+
+-- 用户特质表
+CREATE TABLE user_traits (
+    trait_id UUID PRIMARY KEY,
+    user_id UUID REFERENCES users(user_id),
+    trait_name VARCHAR(100),
+    confidence FLOAT DEFAULT 0.5
+);
+```
+
+#### PostgreSQL管理器 (PostgreSQL Manager)
+
+下面是PostgreSQL管理器的简化实现：
+
+```python
+# app/db/postgres_manager.py
+import psycopg2
+import uuid
+from psycopg2.extras import RealDictCursor
+
+class PostgresManager:
+    """PostgreSQL数据库管理器"""
+    
+    def __init__(self, connection_string):
+        self.connection_string = connection_string
+    
+    def get_connection(self):
+        """获取数据库连接"""
+        return psycopg2.connect(self.connection_string)
+    
+    def create_user(self, name, email):
+        """创建新用户"""
+        user_id = str(uuid.uuid4())
+        with self.get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "INSERT INTO users (user_id, name, email) VALUES (%s, %s, %s) RETURNING user_id",
+                    (user_id, name, email)
+                )
+                return cur.fetchone()[0]
+    
+    def get_user_traits(self, user_id, min_confidence=0.5):
+        """获取用户特质"""
+        with self.get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    "SELECT * FROM user_traits WHERE user_id = %s AND confidence >= %s",
+                    (user_id, min_confidence)
+                )
+                return cur.fetchall()
+    
+    def update_user_trait(self, user_id, trait_name, confidence_delta=0.1):
+        """更新用户特质"""
+        with self.get_connection() as conn:
+            with conn.cursor() as cur:
+                # 检查特质是否存在
+                cur.execute(
+                    "SELECT trait_id FROM user_traits WHERE user_id = %s AND trait_name = %s",
+                    (user_id, trait_name)
+                )
+                result = cur.fetchone()
+                
+                if result:
+                    # 更新现有特质
+                    trait_id = result[0]
+                    cur.execute(
+                        "UPDATE user_traits SET confidence = LEAST(1.0, confidence + %s) WHERE trait_id = %s",
+                        (confidence_delta, trait_id)
+                    )
+                else:
+                    # 创建新特质
+                    trait_id = str(uuid.uuid4())
+                    cur.execute(
+                        "INSERT INTO user_traits (trait_id, user_id, trait_name, confidence) VALUES (%s, %s, %s, %s)",
+                        (trait_id, user_id, trait_name, 0.5 + confidence_delta)
+                    )
+                conn.commit()
+```
+
+### MongoDB配置 (MongoDB Configuration)
+
+MongoDB用于存储灵活的用户上下文和交互模式数据，允许半结构化和动态内容。
+
+#### 集合设计 (Collection Design)
+
+MongoDB中使用以下集合：
+1. **sessions** - 活跃会话信息
+2. **user_contexts** - 用户上下文和偏好
+3. **topics** - 对话主题和相关信息
+
+#### MongoDB管理器 (MongoDB Manager)
+
+下面是MongoDB管理器的简化实现：
+
+```python
+# app/db/mongodb_manager.py
+from pymongo import MongoClient
+from datetime import datetime
+import uuid
+
+class MongoDBManager:
+    """MongoDB管理器"""
+    
+    def __init__(self, connection_string, db_name="ai_soulmate"):
+        self.client = MongoClient(connection_string)
+        self.db = self.client[db_name]
+        self.sessions = self.db["sessions"]
+        self.user_contexts = self.db["user_contexts"]
+        self.topics = self.db["topics"]
+    
+    def create_session(self, user_id):
+        """创建新的用户会话"""
+        session_id = f"session_{str(uuid.uuid4())}"
+        session_data = {
+            "_id": session_id,
+            "user_id": user_id,
+            "start_time": datetime.utcnow(),
+            "context": {"emotional_state": "neutral"},
+            "recent_messages": [],
+            "active": True
+        }
+        
+        self.sessions.insert_one(session_data)
+        return session_id
+    
+    def add_message_to_session(self, session_id, role, content):
+        """添加消息到会话历史"""
+        message = {
+            "role": role,
+            "content": content,
+            "timestamp": datetime.utcnow()
+        }
+        
+        self.sessions.update_one(
+            {"_id": session_id},
+            {
+                "$push": {"recent_messages": message},
+                "$set": {"last_active": datetime.utcnow()}
+            }
+        )
+    
+    def get_or_create_user_context(self, user_id):
+        """获取或创建用户上下文信息"""
+        context_id = f"context_{user_id}"
+        context = self.user_contexts.find_one({"_id": context_id})
+        
+        if not context:
+            # 创建新上下文
+            context = {
+                "_id": context_id,
+                "user_id": user_id,
+                "preferences": {
+                    "topics": {},
+                    "interaction_style": {"formality": 0.5}
+                },
+                "emotional_patterns": {"baseline": "neutral"},
+                "last_updated": datetime.utcnow()
+            }
+            
+            self.user_contexts.insert_one(context)
+        
+        return context
+```
+
+### Pinecone配置 (Pinecone Configuration)
+
+Pinecone用于存储和检索向量化的长期记忆，支持语义搜索功能。
+
+#### Pinecone管理器 (Pinecone Manager)
+
+下面是Pinecone管理器的简化实现：
+
+```python
+# app/db/pinecone_manager.py
+import pinecone
+from langchain.embeddings import OpenAIEmbeddings
+import uuid
+from datetime import datetime
+
+class PineconeManager:
+    """Pinecone向量数据库管理器"""
+    
+    def __init__(self, api_key, environment, index_name, dimension=1536):
+        self.api_key = api_key
+        self.environment = environment
+        self.index_name = index_name
+        self.dimension = dimension
+        self.embeddings = OpenAIEmbeddings()
+        
+        # 初始化Pinecone
+        pinecone.init(api_key=self.api_key, environment=self.environment)
+        
+        # 如果不存在，创建索引
+        if self.index_name not in pinecone.list_indexes():
+            pinecone.create_index(
+                name=self.index_name,
+                dimension=self.dimension,
+                metric="cosine"
+            )
+        
+        self.index = pinecone.Index(self.index_name)
+    
+    def store_memory(self, text, metadata=None):
+        """存储记忆"""
+        if metadata is None:
+            metadata = {}
+        
+        # 生成唯一ID
+        memory_id = f"mem_{uuid.uuid4()}"
+        
+        # 添加时间戳到元数据
+        metadata["timestamp"] = datetime.utcnow().isoformat()
+        
+        # 从文本获取嵌入向量
+        vector = self.embeddings.embed_query(text)
+        
+        # 存储到Pinecone
+        self.index.upsert(
+            vectors=[(memory_id, vector, {"text": text, **metadata})]
+        )
+        
+        return memory_id
+    
+    def retrieve_relevant_memories(self, query, filter=None, top_k=3):
+        """检索相关记忆"""
+        # 获取查询嵌入
+        query_embedding = self.embeddings.embed_query(query)
+        
+        # 在Pinecone中搜索
+        results = self.index.query(
+            query_embedding,
+            top_k=top_k,
+            filter=filter,
+            include_metadata=True
+        )
+        
+        # 整理结果
+        memories = []
+        for match in results["matches"]:
+            memories.append({
+                "text": match["metadata"]["text"],
+                "relevance": match["score"]
+            })
+        
+        return memories
+```
+
+### Redis配置 (Redis Configuration)
+
+Redis用于高速缓存会话数据和短期记忆内容，支持快速访问和自动过期。
+
+#### Redis管理器 (Redis Manager)
+
+下面是Redis管理器的简化实现：
+
+```python
+# app/db/redis_manager.py
+import redis
+import json
+from datetime import timedelta
+
+class RedisManager:
+    """Redis缓存管理器"""
+    
+    def __init__(self, url=None, host="localhost", port=6379, password=None):
+        if url:
+            self.client = redis.from_url(url, decode_responses=True)
+        else:
+            self.client = redis.Redis(
+                host=host,
+                port=port,
+                password=password,
+                decode_responses=True
+            )
+    
+    def store_session_data(self, session_id, data, expire_seconds=3600):
+        """存储会话数据"""
+        key = f"session:{session_id}"
+        self.client.setex(
+            key,
+            timedelta(seconds=expire_seconds),
+            json.dumps(data)
+        )
+    
+    def get_session_data(self, session_id):
+        """检索会话数据"""
+        key = f"session:{session_id}"
+        data = self.client.get(key)
+        if data:
+            return json.loads(data)
+        return None
+    
+    def cache_embedding(self, text, embedding, expire_seconds=86400):
+        """缓存嵌入向量"""
+        key = f"embedding:{hash(text)}"
+        self.client.setex(
+            key,
+            timedelta(seconds=expire_seconds),
+            json.dumps(embedding)
+        )
+    
+    def get_cached_embedding(self, text):
+        """获取缓存的嵌入向量"""
+        key = f"embedding:{hash(text)}"
+        embedding = self.client.get(key)
+        if embedding:
+            return json.loads(embedding)
+        return None
+```
+
+## 后端服务层 (Backend Service Layer)
+
+后端服务层负责将数据库与LLM集成起来，管理记忆和对话流程。
+
+### LangChain集成 (LangChain Integration)
+
+LangChain提供了与大型语言模型(LLM)集成的框架，处理对话流和记忆管理。
+
+#### 基础组件 (Basic Components)
+
+```python
+# app/conversation/langchain_components.py
+from langchain.chat_models import ChatOpenAI
+from langchain.chains import ConversationChain
+from langchain.memory import ConversationBufferMemory, ConversationSummaryMemory, VectorStoreRetrieverMemory
+from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder, SystemMessagePromptTemplate
+
+def create_llm(model_name="gpt-3.5-turbo", temperature=0.7):
+    """创建LLM实例"""
+    return ChatOpenAI(
+        model_name=model_name,
+        temperature=temperature
+    )
+
+def create_short_term_memory():
+    """创建短期记忆组件"""
+    return ConversationBufferMemory(
+        memory_key="short_term_memory",
+        return_messages=True
+    )
+
+def create_conversation_prompt(personality="温暖、善解人意的伴侣"):
+    """创建对话提示模板"""
+    return ChatPromptTemplate.from_messages([
+        SystemMessagePromptTemplate.from_template(
+            "你是一个AI伴侣，具有以下特点：{personality}。"
+            "你与用户的关系目前处于'{relationship_stage}'阶段。\n\n"
+            "相关信息:\n{context}"
+        ),
+        MessagesPlaceholder(variable_name="short_term_memory"),
+        ("human", "{input}")
+    ])
+```
+
+### 记忆管理器 (Memory Manager)
+
+记忆管理器协调多层记忆系统，处理记忆的存储、检索和更新。
+
+```python
+# app/memory/memory_manager.py
+from typing import Dict, List, Any
+from langmem.core import LangMemManager
+from langmem.memory import ShortTermMemory, MediumTermMemory, LongTermMemory
+from langmem.models import MemoryEntry, EmotionalContext, RelationshipStage
+from datetime import datetime
+
+class SoulmateMemoryManager:
+    """管理AI伴侣的多层记忆系统，基于LangMem框架"""
+    
+    def __init__(self, redis_client, postgres_client, mongodb_client, pinecone_client):
+        # 初始化底层数据库客户端
+        self.redis = redis_client
+        self.postgres = postgres_client
+        self.mongodb = mongodb_client
+        self.pinecone = pinecone_client
+        
+        # 初始化LangMem核心管理器
+        self.langmem = LangMemManager()
+        
+        # 配置LangMem的三层记忆系统
+        self.short_term = ShortTermMemory(
+            storage_client=self.redis,
+            ttl_seconds=3600,  # 1小时过期
+            max_items=50,      # 最多保留50条记忆
+            recency_weight=0.8 # 最近记忆权重高
+        )
+        
+        self.medium_term = MediumTermMemory(
+            storage_client=self.mongodb,
+            ttl_days=30,       # 30天过期
+            importance_threshold=0.3,
+            emotional_weight=0.6
+        )
+        
+        self.long_term = LongTermMemory(
+            vector_store=self.pinecone,
+            structured_store=self.postgres,
+            importance_threshold=0.7,
+            decay_rate=0.05    # 缓慢的记忆衰减率
+        )
+        
+        # 注册记忆层到LangMem管理器
+        self.langmem.register_memory_layer("short_term", self.short_term)
+        self.langmem.register_memory_layer("medium_term", self.medium_term)
+        self.langmem.register_memory_layer("long_term", self.long_term)
+    
+    def initialize_session(self, user_id: str) -> str:
+        """初始化新会话"""
+        # 使用LangMem创建新会话
+        session_id = self.langmem.create_session(user_id)
+        
+        # 加载用户关系状态
+        relationship = self.langmem.get_relationship_context(user_id)
+        if not relationship:
+            # 新用户，初始化关系状态
+            self.langmem.initialize_relationship(
+                user_id=user_id,
+                stage=RelationshipStage.INITIAL,
+                closeness=0.1,
+                trust=0.1,
+                emotional_baseline="neutral"
+            )
+        
+        return session_id
+    
+    def add_message(self, session_id: str, role: str, content: str) -> None:
+        """添加消息到对话"""
+        # 创建记忆条目
+        memory = MemoryEntry(
+            text=content,
+            role=role,
+            timestamp=datetime.utcnow(),
+            metadata={
+                "session_id": session_id,
+                "type": "message"
+            }
+        )
+        
+        # 使用LangMem存储记忆
+        # LangMem会自动处理记忆分发到适当的层
+        self.langmem.store_memory(memory)
+        
+        # 对于用户消息，进行情感分析和特质提取
+        if role == "user":
+            # 使用LangMem的情感分析
+            emotion = self.langmem.analyze_emotion(content)
+            
+            # 更新情感上下文
+            self.langmem.update_emotional_context(
+                session_id=session_id,
+                emotion=emotion
+            )
+            
+            # 使用LangMem的特质提取
+            traits = self.langmem.extract_traits(content)
+            for trait in traits:
+                self.langmem.update_user_trait(
+                    session_id=session_id,
+                    trait=trait.name,
+                    confidence=trait.confidence
+                )
+    
+    def get_conversation_context(self, session_id: str) -> Dict[str, Any]:
+        """获取当前对话上下文"""
+        # 使用LangMem的上下文检索功能
+        context = self.langmem.get_conversation_context(session_id)
+        
+        # LangMem自动整合了三层记忆系统的数据
+        return {
+            "recent_messages": context.recent_messages,
+            "user_context": context.user_context,
+            "memories": context.relevant_memories,
+            "user_traits": context.user_traits,
+            "emotional_state": context.emotional_state,
+            "relationship": context.relationship
+        }
+    
+    def update_relationship(self, user_id: str, interaction_quality: float) -> None:
+        """更新用户与AI伴侣的关系状态"""
+        # 使用LangMem的关系发展模型
+        self.langmem.update_relationship(
+            user_id=user_id,
+            interaction_quality=interaction_quality
+        )
+        
+        # LangMem会自动处理关系阶段转换和亲密度计算
+
+### 对话管理器 (Conversation Manager)
+
+对话管理器负责处理与LLM的交互，生成响应并管理对话流程。
+
+```python
+# app/conversation/conversation_manager.py
+from langchain.chat_models import ChatOpenAI
+from langchain.chains import LLMChain
+from langchain.prompts import ChatPromptTemplate
+from langmem.prompts import RelationshipPromptBuilder
+from langmem.context import MemoryContextManager
+
+class SoulmateConversationManager:
+    """管理与AI伴侣的对话流程，集成LangMem"""
+    
+    def __init__(self, memory_manager, model_name="gpt-3.5-turbo", temperature=0.7):
+        self.memory_manager = memory_manager
+        self.llm = ChatOpenAI(model_name=model_name, temperature=temperature)
+        
+        # 初始化LangMem提示构建器
+        self.prompt_builder = RelationshipPromptBuilder()
+        
+        # 初始化LangMem上下文管理器
+        self.context_manager = MemoryContextManager()
+    
+    def generate_response(self, session_id, user_message, soulmate_config):
+        """生成AI伴侣回应"""
+        # 添加用户消息到记忆
+        self.memory_manager.add_message(session_id, "user", user_message)
+        
+        # 获取对话上下文
+        context = self.memory_manager.get_conversation_context(session_id)
+        
+        # 使用LangMem的上下文管理器处理记忆
+        processed_context = self.context_manager.process(
+            context=context,
+            max_tokens=2000,  # 控制上下文长度
+            recency_bias=0.7,  # 偏向最近的记忆
+            relevance_threshold=0.6  # 相关性阈值
+        )
+        
+        # 使用LangMem的提示构建器创建提示
+        prompt = self.prompt_builder.build_prompt(
+            name=soulmate_config.get("name", "AI伴侣"),
+            personality=soulmate_config.get("personality", "温暖、善解人意"),
+            relationship_stage=context["relationship"]["stage"],
+            emotional_context=context["emotional_state"],
+            user_traits=context["user_traits"],
+            memories=processed_context.prioritized_memories,
+            current_message=user_message
+        )
+        
+        # 创建链
+        chain = LLMChain(llm=self.llm, prompt=prompt)
+        
+        # 生成回应
+        response = chain.run()
+        
+        # 添加回应到记忆
+        self.memory_manager.add_message(session_id, "soulmate", response)
+        
+        # 更新关系状态
+        # 这里可以添加一个简单的互动质量评估
+        interaction_quality = self._evaluate_interaction(user_message, response)
+        self.memory_manager.update_relationship(
+            user_id=context["user_context"]["user_id"],
+            interaction_quality=interaction_quality
+        )
+        
+        return response
+    
+    def _evaluate_interaction(self, user_message, ai_response):
+        """评估互动质量"""
+        # 简单实现，实际应用中可以使用更复杂的评估逻辑
+        # 返回0.0-1.0之间的分数
+        # 这里可以集成LangMem的互动质量评估功能
+        
+        # 简单示例实现
+        positive_indicators = ["谢谢", "感谢", "喜欢", "爱"]
+        negative_indicators = ["不理解", "困惑", "生气", "失望"]
+        
+        score = 0.5  # 默认中性
+        
+        for word in positive_indicators:
+            if word in user_message.lower():
+                score += 0.1
+        
+        for word in negative_indicators:
+            if word in user_message.lower():
+                score -= 0.1
+                
+        return max(0.0, min(1.0, score))
+```
+

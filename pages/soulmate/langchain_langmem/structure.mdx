@@ -1,0 +1,396 @@
+# AI Soulmate系统架构与环境设置
+
+## 目录 (Table of Contents)
+1. [系统架构概述](#系统架构概述-system-architecture-overview)
+2. [环境设置与安装](#环境设置与安装-environment-setup-and-installation)
+
+## 系统架构概述 (System Architecture Overview)
+
+AI Soulmate系统采用多层架构，各层之间有明确的职责分工：
+
+```
+                     ┌─────────────────────────────────────────────────────┐
+                     │                     客户端界面                        │
+                     │              (Web/移动/语音/消息平台)                  │
+                     └───────────────────────┬─────────────────────────────┘
+                                             │
+                                             ▼
+                     ┌─────────────────────────────────────────────────────┐
+                     │                      API网关                         │
+                     │                (请求路由和身份验证)                    │
+                     └───────────────────────┬─────────────────────────────┘
+                                             │
+                                             ▼
+                     ┌─────────────────────────────────────────────────────┐
+                     │                     应用服务                         │
+                     ├─────────────┬─────────────────────┬─────────────────┤
+                     │   用户服务   │      对话服务         │    记忆服务      │
+                     └─────────────┴──────────┬──────────┴─────────────────┘
+                                             │
+                                             ▼
+                     ┌─────────────────────────────────────────────────────┐
+                     │                   LangMem框架                        │
+                     │             (核心记忆管理与关系建模)                   │
+                     │                   LangChain集成                      │
+                     └────────────────────────┬────────────────────────────┘
+                                             │
+                                             ▼
+                     ┌─────────────────────────────────────────────────────┐
+                     │                      LLM接口                         │
+                     │             (OpenAI, Anthropic, LLaMA等)            │
+                     └────────────────────────┬────────────────────────────┘
+                                             │
+                                             ▼
+                     ┌─────────────────────────────────────────────────────┐
+                     │                LangMem记忆架构                       │
+                     ├──────────────┬────────────────────┬─────────────────┤
+                     │   短期记忆    │      中期记忆        │     长期记忆     │
+                     │   (Redis)    │ (MongoDB/Postgres) │   (Pinecone)    │
+                     └──────────────┴────────────────────┴─────────────────┘
+```
+
+### 架构层级详解
+
+1. **客户端界面层 (Client Interface Layer)**
+   - 提供用户与AI伴侣进行交互的接口
+   - 支持多种平台：Web应用、移动应用、语音设备或消息平台
+   - 负责用户界面的渲染、用户输入的收集以及与API的通信
+
+2. **API网关层 (API Gateway Layer)**
+   - 处理所有客户端请求的入口点
+   - 进行用户认证和授权
+   - 路由请求至相应的微服务
+   - 实现请求限流和负载均衡
+
+3. **应用服务层 (Application Services Layer)**
+   - **用户服务 (User Service)**：管理用户档案、认证和权限
+   - **对话服务 (Conversation Service)**：处理对话流程和响应生成
+   - **记忆服务 (Memory Service)**：管理多层次记忆存储和检索
+
+4. **LangMem框架层 (LangMem Framework Layer)**
+   - **核心记忆管理**：提供统一的记忆抽象和管理接口
+   - **关系建模**：跟踪和管理AI与用户之间的关系发展
+   - **情感上下文**：维护用户情感状态和情感历史
+   - **记忆优先级**：智能确定哪些记忆在当前上下文中最相关
+   - **记忆衰减**：模拟人类记忆随时间自然衰减的过程
+   - **LangChain集成**：与LangChain框架无缝集成，用于LLM交互
+
+5. **LLM接口层 (LLM Interface Layer)**
+   - 与大型语言模型API的连接接口
+   - 支持多种LLM提供商：OpenAI、Anthropic、LLaMA等
+   - 处理提示格式化、API调用、以及结果解析
+
+6. **LangMem记忆架构层 (LangMem Memory Architecture Layer)**
+   - **短期记忆 (Redis)**：存储当前会话状态和最近消息
+     - 由LangMem的ShortTermMemory组件管理
+     - 实现自动过期和优先级排序
+   - **中期记忆 (MongoDB/PostgreSQL)**：存储用户偏好和最近交互历史
+     - 由LangMem的MediumTermMemory组件管理
+     - 实现情感标记和上下文关联
+   - **长期记忆 (Pinecone)**：存储语义记忆和知识，支持向量搜索
+     - 由LangMem的LongTermMemory组件管理
+     - 实现语义检索和重要性加权
+
+### 数据流程概述
+
+1. **用户输入流程**:
+   - 用户输入通过客户端界面发送至API网关
+   - API网关验证身份并路由请求至对话服务
+   - 对话服务利用记忆服务获取上下文信息
+   - 通过LangChain构建包含记忆的提示
+   - LLM接口处理请求并返回生成的响应
+
+2. **记忆管理流程**:
+   - 用户消息经过实体提取、情感分析等处理
+   - 短期记忆在Redis中实时更新
+   - 对话结束后，中期记忆在MongoDB中更新
+   - 重要交互转换为向量存储在Pinecone中作为长期记忆
+   - 关系进展和用户特质在PostgreSQL中更新
+
+3. **记忆检索流程**:
+   - 当收到新消息时，系统首先从短期记忆获取当前上下文
+   - 从中期记忆获取用户特征和最近行为模式
+   - 利用向量搜索从长期记忆检索相关历史信息
+   - 组合所有记忆层次构建完整上下文用于回应生成
+
+这种分层架构允许每个组件专注于其核心功能，同时通过明确的接口进行协作，确保了系统的可维护性、可扩展性和弹性。
+
+
+## 环境设置与安装 (Environment Setup and Installation)
+
+### 前提条件 (Prerequisites)
+
+为搭建完整的AI Soulmate系统，您需要满足以下前提条件：
+
+- **Python环境**: Python 3.8+ 
+- **容器化技术**: Docker (用于容器化部署)
+- **数据库客户端**: PostgreSQL、MongoDB、Redis的客户端库
+- **API密钥**: LLM API访问权限(如OpenAI密钥)和Pinecone API密钥
+- **存储空间**: 足够的存储空间用于数据库(尤其是向量数据库)
+
+### 项目初始化 (Project Initialization)
+
+#### 1. 创建虚拟环境 (Create Virtual Environment)
+
+隔离项目依赖，避免冲突：
+
+```bash
+# 创建虚拟环境
+python -m venv venv
+
+# 在Linux/Mac上激活
+source venv/bin/activate
+
+# 在Windows上激活
+venv\Scripts\activate
+```
+
+#### 2. 安装依赖 (Install Dependencies)
+
+安装所有必要的库和框架：
+
+```bash
+pip install langchain langchain-community openai pymongo redis psycopg2-binary pinecone-client python-dotenv sentence-transformers flask gunicorn
+```
+
+这些包包括：
+- `langchain`和`langchain-community`: LLM应用开发框架
+- `openai`: OpenAI API客户端
+- `pymongo`: MongoDB Python驱动
+- `redis`: Redis Python客户端
+- `psycopg2-binary`: PostgreSQL Python驱动
+- `pinecone-client`: Pinecone向量数据库客户端
+- `python-dotenv`: 环境变量管理
+- `sentence-transformers`: 文本嵌入生成
+- `flask`和`gunicorn`: Web服务器和WSGI HTTP服务器
+
+#### 3. 创建环境变量文件 (Create Environment Variables File)
+
+创建一个`.env`文件，用于安全地存储配置信息：
+
+```
+# API密钥 (API Keys)
+OPENAI_API_KEY=your_openai_key
+PINECONE_API_KEY=your_pinecone_key
+PINECONE_ENVIRONMENT=your_pinecone_environment
+
+# 数据库连接 (Database Connections)
+POSTGRES_URL=postgresql://username:password@localhost:5432/soulmate
+MONGODB_URL=mongodb://localhost:27017/
+REDIS_URL=redis://localhost:6379
+
+# 应用设置 (Application Settings)
+INDEX_NAME=soulmate-memories
+EMBEDDING_MODEL=text-embedding-ada-002
+LLM_MODEL=gpt-4
+JWT_SECRET=your_jwt_secret_key
+```
+
+#### 4. 项目结构 (Project Structure)
+
+创建以下项目结构，以组织代码和资源：
+
+```
+ai-soulmate/
+│
+├── app/                           # 主应用程序目录
+│   ├── __init__.py               # 应用程序初始化
+│   ├── api/                      # API端点
+│   │   ├── __init__.py
+│   │   ├── routes.py             # 路由定义
+│   │   └── schemas.py            # 数据模式
+│   ├── core/                     # 核心功能
+│   │   ├── __init__.py
+│   │   ├── config.py             # 配置加载
+│   │   └── security.py           # 安全功能
+│   ├── db/                       # 数据库连接
+│   │   ├── __init__.py
+│   │   ├── postgres_manager.py   # PostgreSQL管理器
+│   │   ├── mongodb_manager.py    # MongoDB管理器
+│   │   ├── pinecone_manager.py   # Pinecone管理器
+│   │   └── redis_manager.py      # Redis管理器
+│   ├── memory/                   # 记忆管理
+│   │   ├── __init__.py
+│   │   ├── memory_manager.py     # 记忆管理器
+│   │   └── memory_types.py       # 记忆类型定义
+│   └── conversation/             # 对话管理
+│       ├── __init__.py
+│       ├── conversation_manager.py # 对话管理器
+│       └── prompt_templates.py    # 提示模板
+│
+├── scripts/                       # 实用脚本
+│   ├── init_databases.py         # 数据库初始化
+│   └── seed_data.py              # 测试数据生成
+│
+├── tests/                         # 测试目录
+│   ├── __init__.py
+│   ├── test_api.py               # API测试
+│   ├── test_memory.py            # 记忆系统测试
+│   └── test_conversation.py      # 对话系统测试
+│
+├── .env                           # 环境变量
+├── requirements.txt               # 依赖列表
+├── Dockerfile                     # Docker配置
+├── docker-compose.yml             # 容器编排配置
+└── main.py                        # 应用入口点
+```
+
+### 数据库设置 (Database Setup)
+
+各数据库系统需要单独设置和配置：
+
+#### PostgreSQL设置
+
+1. 安装PostgreSQL服务器或使用云服务
+2. 创建专用数据库和用户：
+```sql
+CREATE DATABASE soulmate;
+CREATE USER soulmate_user WITH PASSWORD 'secure_password';
+GRANT ALL PRIVILEGES ON DATABASE soulmate TO soulmate_user;
+```
+
+#### MongoDB设置
+
+1. 安装MongoDB或使用Atlas云服务
+2. 创建专用数据库：
+```javascript
+use ai_soulmate
+db.createUser({
+  user: "soulmate_user",
+  pwd: "secure_password",
+  roles: [{ role: "readWrite", db: "ai_soulmate" }]
+})
+```
+
+#### Pinecone设置
+
+1. 注册Pinecone账户
+2. 创建新的索引：
+   - 维度设置为1536(使用OpenAI的text-embedding-ada-002)
+   - 指标设置为"cosine"
+   - 设置适当的Pod类型和规模
+
+#### Redis设置
+
+1. 安装Redis服务器或使用云服务
+2. 配置密码和持久化选项：
+```
+requirepass "secure_password"
+appendonly yes
+```
+
+### 应用配置 (Application Configuration)
+
+创建主要配置加载模块：
+
+```python
+# app/core/config.py
+import os
+from dotenv import load_dotenv
+from pydantic import BaseSettings
+
+# 加载环境变量
+load_dotenv()
+
+class Settings(BaseSettings):
+    """应用程序设置，从环境变量加载"""
+    # 应用设置
+    APP_NAME: str = "AI Soulmate"
+    DEBUG: bool = os.getenv("DEBUG", "False").lower() == "true"
+    
+    # API密钥
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
+    PINECONE_API_KEY: str = os.getenv("PINECONE_API_KEY")
+    PINECONE_ENVIRONMENT: str = os.getenv("PINECONE_ENVIRONMENT")
+    
+    # 数据库连接
+    POSTGRES_URL: str = os.getenv("POSTGRES_URL")
+    MONGODB_URL: str = os.getenv("MONGODB_URL")
+    REDIS_URL: str = os.getenv("REDIS_URL")
+    
+    # 应用设置
+    INDEX_NAME: str = os.getenv("INDEX_NAME", "soulmate-memories")
+    EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "text-embedding-ada-002")
+    LLM_MODEL: str = os.getenv("LLM_MODEL", "gpt-4")
+    JWT_SECRET: str = os.getenv("JWT_SECRET", "your_jwt_secret_key")
+    
+    # 记忆设置
+    SHORT_TERM_TTL: int = int(os.getenv("SHORT_TERM_TTL", "3600"))  # 1小时
+    MEDIUM_TERM_TTL: int = int(os.getenv("MEDIUM_TERM_TTL", "604800"))  # 1周
+    
+    class Config:
+        env_file = ".env"
+        case_sensitive = True
+
+# 创建设置实例
+settings = Settings()
+```
+
+### 应用初始化 (Application Initialization)
+
+创建应用程序工厂函数：
+
+```python
+# app/__init__.py
+from flask import Flask
+from app.core.config import settings
+from app.api.routes import api
+
+def create_app(config_name=None):
+    """应用程序工厂函数"""
+    app = Flask(__name__)
+    
+    # 配置应用
+    app.config['SECRET_KEY'] = settings.JWT_SECRET
+    app.config['DEBUG'] = settings.DEBUG
+    
+    # 注册蓝图
+    app.register_blueprint(api, url_prefix='/api')
+    
+    # 健康检查端点
+    @app.route('/health')
+    def health_check():
+        return {'status': 'healthy'}
+    
+    return app
+```
+
+### 主程序入口 (Main Entry Point)
+
+创建主入口文件：
+
+```python
+# main.py
+from app import create_app
+
+app = create_app()
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+```
+
+### 数据库初始化脚本 (Database Initialization Script)
+
+为PostgreSQL创建初始化脚本：
+
+```python
+# scripts/init_databases.py
+import psycopg2
+from app.core.config import settings
+
+def init_postgres():
+    """初始化PostgreSQL架构"""
+    conn = psycopg2.connect(settings.POSTGRES_URL)
+    cursor = conn.cursor()
+    
+    # 这里会执行SQL架构创建脚本
+    # 包括创建用户表、关系表、会话表等
+    
+    cursor.close()
+    conn.commit()
+    conn.close()
+
+if __name__ == "__main__":
+    init_postgres()
+    print("数据库初始化完成！")
+```
