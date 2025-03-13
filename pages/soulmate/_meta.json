@@ -2,6 +2,9 @@
   "memobase": {
     "title": "Memobase"
   },
+  "vector-db": {
+    "title": "Vector 数据库"
+  },
   "soulmate-chatbot": {
     "title": "AI助手的记忆与生命周期"
   },
