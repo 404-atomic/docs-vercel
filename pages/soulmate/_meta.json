@@ -1,14 +1,18 @@
 {
+  "soulmate-chatbot": {
+    "title": "AI助手的记忆与生命周期"
+  },
   "memobase": {
     "title": "Memobase"
   },
   "vector-db": {
     "title": "Vector 数据库"
   },
-  "soulmate-chatbot": {
-    "title": "AI助手的记忆与生命周期"
-  },
+
   "langchain_langmem": {
     "title": "LangChain技术文档"
+  },
+  "ai-artifacts": {
+    "title": "AI ARTIFACTS"
   }
 } 

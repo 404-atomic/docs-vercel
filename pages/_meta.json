@@ -2,21 +2,11 @@
   "index": {
     "title": "介绍"
   },
-  "ai-agents": {
-    "title": "AI 智能代理(续)"
-
-  },
-  "prompt-engineering": {
-    "title": "提示词工程(续)"
+  "reference-page": {
+    "title": "校长参考"
   },
   "soulmate": {
     "title": "AI 伴侣"
-  },
-  "updates": {
-    "title": "更新日志"
-  },
-  "reference-page": {
-    "title": "校长参考"
   },
   "nav1": {
     "title": "技术文档",
@@ -64,6 +54,9 @@
         "href": "/ref/adv-prompt"
       }
     }
+  },
+  "others": {
+    "title": "其他"
   }
 }
 

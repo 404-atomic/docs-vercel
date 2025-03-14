@@ -1,6 +1,6 @@
 {
-  "memobase-guide": {
-    "title": "快速开始"
+  "memobase": {
+    "title": "本地开发环境搭建指南"
   },
   "newServer": {
     "title": "(server) 配置指南"
