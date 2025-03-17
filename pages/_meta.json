@@ -2,8 +2,8 @@
   "index": {
     "title": "介绍"
   },
-  "reference-page": {
-    "title": "校长参考"
+  "--": {
+    "type": "separator"
   },
   "soulmate": {
     "title": "AI 伴侣"
@@ -57,7 +57,17 @@
   },
   "others": {
     "title": "其他"
+  },
+  "--2": {
+    "type": "separator"
+  },
+  "reference-page": {
+    "title": "校长参考"
+  },
+  "key": {
+    "title": "API 密钥",
+    "theme": {
+      "pagination": false
+    }
   }
 }
-
-
