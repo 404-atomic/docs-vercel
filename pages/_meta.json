@@ -44,19 +44,8 @@
       }
     }
   },
-  "ref": {
-    "title": "参考",
-    "type": "menu",
-    "display": "hidden",
-    "items": {
-      "adv-prompt": {
-        "title": "高级提示词",
-        "href": "/ref/adv-prompt"
-      }
-    }
-  },
   "others": {
-    "title": "其他"
+    "title": "其他1"
   },
   "--2": {
     "type": "separator"
