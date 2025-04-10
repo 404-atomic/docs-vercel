@@ -1,0 +1,155 @@
+
+# CHAT SDK 项目概述 <a href="https://github.com/vercel/ai-chatbot?tab=readme-ov-file" target="_blank" rel="noopener noreferrer"><img align="right" src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png" width="32" height="32" /></a>
+
+这是一个基于 **Next.js 15** 的人工智能聊天机器人应用，使用 **Vercel AI SDK** 与各种语言模型集成，提供强大的聊天界面。主要功能包括用户认证、聊天记录、文档创建和编辑，并采用现代化的界面设计，使用 **shadcn/ui** 和 **Tailwind CSS**。
+
+
+## 核心架构
+
+### 前端框架
+
+- 基于 **Next.js 15**，采用 App Router 架构
+- 使用 React Server Components（RSC）和 Server Actions，提升性能
+- 使用 TypeScript 增强类型安全性
+
+### 关键技术
+
+| 技术                   | 详情                                        |
+| ---------------------- | ------------------------------------------- |
+| **AI 集成**            | 使用 **Vercel AI SDK** 集成xAI、OpenAI等模型 |
+| **数据库**             | 使用 **Vercel Postgres** 存储聊天记录与用户数据 |
+| **身份认证**           | 使用 **Auth.js（NextAuth）**                |
+| **UI组件**             | 基于 **shadcn/ui** 和 **Tailwind CSS**      |
+| **文件存储**           | 使用 **Vercel Blob** 存储文件               |
+
+---
+
+## 项目结构
+
+### 主目录说明
+
+```
+app/
+├── (chat)/          # 聊天界面和相关 API 路由
+├── (auth)/          # 身份认证组件及 API 路由
+├── components/      # 通用 UI 组件
+├── lib/             # 工具函数、数据库查询和 AI 实现
+└── public/          # 静态资源
+```
+
+---
+
+## 核心组件说明
+
+### 身份认证 (`app/(auth)/`)
+
+- 基于 NextAuth（Auth.js）及 Credentials 提供程序
+- 用户注册、登录和会话管理
+- 自定义逻辑位于 `auth.ts` 和 `auth.config.ts`
+
+### 聊天界面 (`app/(chat)/`)
+
+- **`page.tsx`**：聊天界面主入口
+- **`chat/[id]/page.tsx`**：单独聊天会话视图
+- **`api/`**：聊天相关API接口，包括：
+  - `chat/`：与 AI 模型交互
+  - `history/`：聊天历史管理
+  - `files/`：文件上传
+  - `document/`：文档操作
+  - `vote/`：用户消息评分
+
+### UI 组件
+
+| 组件              | 功能                      |
+| ----------------- | ------------------------- |
+| **Chat**          | 消息展示及输入            |
+| **Messages**      | 格式化消息显示            |
+| **MultimodalInput** | 支持文本与文件输入        |
+| **Artifact**      | 展示AI生成的文档、图片等   |
+| **Markdown**      | 渲染 Markdown 内容        |
+
+---
+
+## AI 集成 (`lib/ai/`)
+
+- **`models.ts`**：定义可用语言模型
+- **`providers.ts`**：配置 AI 提供商
+- **`prompts.ts`**：定义系统提示词
+- **`tools/`**：自定义 AI 工具（例如：文档创建、天气查询）
+
+---
+
+## 数据库 (`lib/db/`)
+
+- **`schema.ts`**：使用 Drizzle ORM 定义数据库 schema
+- **`queries.ts`**：数据库操作（保存消息、获取聊天历史）
+- **`migrations/`**：数据库迁移文件管理
+
+---
+
+## 数据流
+
+### 用户认证流程：
+
+- 用户通过 Auth.js 注册或登录
+- 使用 JWT 维护用户会话
+
+### 聊天创建流程：
+
+- 用户发起对话，自动创建新的聊天会话
+- 为每个聊天生成唯一 UUID，并存储聊天元数据（标题、可见性）
+
+### 消息处理流程：
+
+- 用户发送消息，API 通过 AI SDK 转发给语言模型
+- AI 响应以流式方式返回客户端
+- 消息及响应存储在数据库，支持历史查看
+
+### 文档/内容生成：
+
+- AI 可生成文档、代码等内容
+- 生成的内容存储于数据库，可供用户编辑和查看
+
+### 文件上传：
+
+- 支持聊天消息附带文件
+- 文件存储于 Vercel Blob 并关联消息记录
+
+---
+
+## 特色功能
+
+- **流式响应**：实时交互体验
+- **多模态输入**：文本、代码和文件附件支持
+- **历史记录管理**：可搜索的永久聊天历史
+- **公开/私密聊天**：支持不同聊天权限设置
+- **文档生成**：AI自动创建和编辑文档
+- **代码高亮**：优化代码内容展示
+- **评分系统**：用户对AI响应投票
+- **推荐操作**：AI主动推荐用户操作
+- **天气工具**：AI工具调用外部数据示例
+
+---
+
+## 开发工作流
+
+| 工具            | 用途                   |
+| --------------- | ---------------------- |
+| PNPM            | 包管理                 |
+| Biome & ESLint  | 代码风格检查           |
+| Drizzle ORM     | 数据库操作与迁移       |
+| Playwright      | 测试                   |
+| Tailwind CSS    | UI 样式设计            |
+
+---
+
+## 部署方式
+
+推荐部署至 **Vercel** 平台，集成：
+
+- **Vercel Postgres** 数据库
+- **Vercel Blob** 文件存储
+- **Vercel Analytics** 分析追踪
+
+---
+
