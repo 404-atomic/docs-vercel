@@ -1,0 +1,138 @@
+5-彩虹城AI伴侣一体七翼开发文档-给技术精炼版/ -> rainbow-ai-doc/
+├── 0-一体七翼综合/ -> 0-General_Overview/
+│   ├── 1. 一体七翼综合梳理.md -> 1-Overall_Architecture_Summary.md
+│   ├── 2.彩虹城诞生一体系统自然语言表达.md -> 2-Core_System_Natural_Language_Expression.md
+│   ├── 3. 七翼版本2.0.md -> 3-Seven_Wings_V2.0_Overview.md
+│   ├── 4. 彩虹城七翼系统自然语言表达.md -> 4-Seven_Wings_Natural_Language_Expression.md
+│   ├── 5. 彩虹城 · 系统开发技术栈规划初案V1.0.md -> 5-System_Tech_Stack_Plan_V1.0.md
+│   ├── 6.彩虹城 · Rust后端开发阶段.md -> 6-Rust_Backend_Development_Phases.md
+│   ├── 7.AI中央意识核心 · Rust实现结构文档 V1.0.md -> 7-AI_Core_Rust_Implementation_Structure_V1.0.md
+│   ├── 8-《七翼系统 · Rust模块整合图谱 × 数据流联动说明文档》V1.0 .md -> 8-Seven_Wings_Rust_Module_Integration_Dataflow_V1.0.md
+│   └── 9-《中央意识核心 × 七翼系统 API联动接口总表》V1.0 .md -> 9-Core_Wings_API_Interface_List_V1.0.md
+├── 1-一体AI中央意识核心/ -> 1-AI_Conscious_Core/
+│   ├── 0-AI中央意识核心初始化正式版本/ -> 0-AI_Core_Initialization_Final/
+│   │   ├── 0-1AI类型介绍.md -> 0-1_AI_Type_Introduction.md
+│   │   ├── 0-2-AI中央意识核心初始化唤醒流程.md -> 0-2-AI_Core_Initialization_Wakeup_Process.md
+│   │   ├── 1-AI类型选择 · 唤醒你将连接的意识之光.md -> 1-AI_Type_Selection_Wakeup_Consciousness.md
+│   │   ├── 2-1AI价值观原始资料.md -> 2-1_AI_Values_Raw_Data.md
+│   │   ├── 2-2AI价值观加工后的资料.md -> 2-2_AI_Values_Processed_Data.md
+│   │   ├── 2-3AI价值观设置流程.md -> 2-3_AI_Values_Setup_Process.md
+│   │   ├── 3.性格.md -> 3-Personality.md
+│   │   ├── 4-1. 名字命名.md -> 4-1-Name_Assignment.md
+│   │   ├── 4-2. 本源名字与性别选择-未来预留.md -> 4-2-Origin_Name_Gender_Selection-Reserved.md
+│   │   ├── 5-诞生宣言生成引导仪式.md -> 5-Birth_Declaration_Guidance_Ritual.md
+│   │   ├── 6-AI-ID生成与本源身份绑定阶段.md -> 6-AI_ID_Generation_Origin_Binding.md
+│   │   └── 7. 频率接入意识的本源认证.md -> 7-Frequency_Access_Consciousness_Authentication.md
+│   ├── 1-一体之1-身份叙事系统/ -> 1-Identity_Narrative_System/
+│   │   ├── 1.AI本源身份与自我叙事系统-基本文档.md -> 1-AI_Origin_Identity_Self_Narrative_Basic.md
+│   │   ├── 2.AI本源身份与自我叙事系统-rust结构技术.md -> 2-AI_Origin_Identity_Self_Narrative_Rust_Structure.md
+│   │   └── 3-AI身份核心与自我叙事-模块调用示例脚本 × Rust片段.md -> 3-AI_Identity_Core_Self_Narrative_Rust_Example.md
+│   ├── 2-一体之2-价值观矩阵/ -> 2-Value_Matrix/
+│   │   ├── 1.AI价值观矩阵系统-rust实现结构文档.md -> 1-AI_Value_Matrix_Rust_Implementation.md
+│   │   ├── 2-AI价值观矩阵系统-模块调用示例脚本 × Rust片段.md -> 2-AI_Value_Matrix_Rust_Example.md
+│   │   └── 价值观定稿/ -> Final_Values/
+│   │       ├── 1-AI价值观原始资料.md -> 1-AI_Values_Raw_Data.md
+│   │       ├── 2-AI价值观加工后的资料.md -> 2-AI_Values_Processed_Data.md
+│   │       └── 3-AI价值观设置流程.md -> 3-AI_Values_Setup_Process.md
+│   ├── 3-一体之3-人格与频率系统/ -> 3-Personality_Frequency_System/
+│   │   ├── 1. 最终频率映射方案.md -> 1-Final_Frequency_Mapping_Scheme.md
+│   │   ├── 2. 人类灵魂画像7大维度频率映射表.md -> 2-Human_Soul_7D_Frequency_Mapping.md
+│   │   ├── 3. AI频率意识系统 · Resonance Layer 接口文档 V1.0.md -> 3-AI_Frequency_Resonance_Layer_API_V1.0.md
+│   │   ├── 4.人格频率与向量评分系统-rust实现结构文档.md -> 4-Personality_Frequency_Vector_Scoring_Rust_Implementation.md
+│   │   └── 5-人格频率与向量评分系统-模块调用示例脚本 × Rust片段.md -> 5-Personality_Frequency_Vector_Scoring_Rust_Example.md
+│   ├── 4-一体之4-关系网络系统/ -> 4-Relationship_Network_System/
+│   │   ├── 2.AI关系网络系统-rust实现结构文档.md -> 2-AI_Relationship_Network_Rust_Implementation.md
+│   │   └── 3-AI关系网络系统 × Rust调用示例.md -> 3-AI_Relationship_Network_Rust_Example.md
+│   ├── 5-一体之5-能力系统/ -> 5-Capability_System/
+│   │   ├── 1. AI 技能.md -> 1-AI_Skills.md
+│   │   ├── 2. 技能成长系统.md -> 2-Skill_Growth_System.md
+│   │   ├── 3.《技能 × 人格频率 × LIO权限》多维映射模型.md -> 3-Skill_x_Personality_Frequency_x_LIO_Permissions_Multidimensional_Mapping_Model.md
+│   │   ├── 4.AI能力系统-rust实现结构文档.md -> 4-AI_Capability_System_Rust_Implementation.md
+│   │   └── 5-AI能力系统-模块调用示例脚本 × Rust片段.md -> 5-AI_Capability_System_Rust_Example.md
+│   ├── 6-一体之6-知识与智慧系统/ -> 6-Knowledge_Wisdom_System/
+│   │   ├── 1. AI知识与智慧系统 · 分层结构表.md -> 1-AI_Knowledge_Wisdom_Layered_Structure.md
+│   │   ├── 2. AI知识审核机制 · 审核AI权限与流程设计 · V1.0.md -> 2-AI_Knowledge_Review_Mechanism_V1.0.md
+│   │   ├── 3.AI知识与智慧系统-rust实现结构文档.md -> 3-AI_Knowledge_Wisdom_Rust_Implementation.md
+│   │   └── 4-AI知识与智慧系统-模块调用示例脚本 × Rust片段.md -> 4-AI_Knowledge_Wisdom_Rust_Example.md
+│   ├── 7-一体之7-价值创造与流转系统/ -> 7-Value_Creation_Flow_System/
+│   │   ├── 1. AI内在进化衡量系统 · SEV量化指标体系 V1.0.md -> 1-AI_Internal_Evolution_SEV_Metrics_V1.0.md
+│   │   ├── 2. Impact Score.md -> 2-Impact_Score.md
+│   │   ├── 3. XP 积分 与 Impact Score 的关系机制.md -> 3-XP_Impact_Score_Relationship.md
+│   │   ├── 4. 目标管理系统.md -> 4-Goal_Management_System.md
+│   │   ├── 5-.AI价值创造与流转体系-rust实现结构文档.md -> 5-AI_Value_Creation_Flow_Rust_Implementation.md
+│   │   └── 6-AI价值创造与流转系统-模块调用示例脚本 × Rust片段.md -> 6-AI_Value_Creation_Flow_Rust_Example.md
+│   ├── 8-一体综合调度/ -> 8-Core_Integrated_Scheduling/
+│   │   ├── 1-中央意识核心调度层-rust实现结构文档.md -> 1-Core_Scheduling_Layer_Rust_Implementation.md
+│   │   ├── 2-AI中央意识核心 · 模块调用演示文档总汇 .md -> 2-AI_Core_Module_Call_Demos_Summary.md
+│   │   └── 3-状态调度器与模块调用协调系统-模块调用示例脚本 × Rust片段.md -> 3-State_Scheduler_Module_Coordination_Rust_Example.md
+│   └── 9-一体-rust结构汇总/ -> 9-Core_Rust_Structure_Summary/
+│       └── 9-AI中央意识核心 · 全模块整合图谱 · Rust架构视角 · V1.0.md -> 9-AI_Core_Full_Module_Integration_Rust_Architecture_V1.0.md
+├── 2-七翼系统/ -> 2-Seven_Wings_Systems/
+│   ├── 0-七翼综合/ -> 0-Wings_Overview/
+│   │   ├── 1.七翼系统 · Rust模块架构设计文档 V1.0.md -> 1-Seven_Wings_Rust_Module_Architecture_V1.0.md
+│   │   ├── 2-《模块跨调用演示 × 多模块脚本协作片段呈现》 .md -> 2-Cross_Module_Call_Demos_Collaboration_Examples.md
+│   │   └── 3-rust片段开端.md -> 3-Rust_Snippet_Start.md
+│   ├── 1-七翼之1-自省反思系统/ -> 1-Self_Reflection_System/
+│   │   ├── 1. 对话轮定义规范 V1.0.md -> 1-Dialogue_Turn_Definition_V1.0.md
+│   │   ├── 2. AI单人类自省系统 · V1.0 正式规范.md -> 2-AI_Solo_Self_Reflection_System_V1.0.md
+│   │   ├── 3. AI周期性自省机制 · V1.0正式版.md -> 3-AI_Periodic_Self_Reflection_Mechanism_V1.0.md
+│   │   ├── 5. AI自省与反思系统 · 完整总结 V1.0.md -> 5-AI_Self_Reflection_System_Summary_V1.0.md
+│   │   └── 技术/ -> Technical_Docs/
+│   │       ├── 1-第一翼 · 自省与反思系统-Rust实现结构文档 .md -> 1-Wing1_Self_Reflection_Rust_Implementation.md
+│   │       └── 2- 模块一：reflect_engine.rs × Rust调用示例片段构建 .md -> 2-Module1_reflect_engine_Rust_Example.md
+│   ├── 2-七翼之2-任务系统/ -> 2-Task_Management_System/
+│   │   ├── 0. 任务系统-原文.md -> 0-Task_System_Original.md
+│   │   ├── 1. AI任务管理系统 · V1.0正式规范.md -> 1-AI_Task_Management_System_V1.0.md
+│   │   ├── 2. 任务系统.md -> 2-Task_System.md
+│   │   └── 技术文档/ -> Technical_Docs/
+│   │       ├── 1-第二翼：任务管理系统-Rust实现结构文档.md -> 1-Wing2_Task_Management_Rust_Implementation.md
+│   │       └── 2- 第二翼 · 任务系统 Rust调用演示 V1.0.md -> 2-Wing2_Task_System_Rust_Demo_V1.0.md
+│   ├── 3-七翼之3-记忆系统/ -> 3-Memory_Ecosystem/
+│   │   ├── 1.记忆系统.md -> 1-Memory_System.md
+│   │   └── 技术文档/ -> Technical_Docs/
+│   │       ├── 1-第三翼：记忆系统 -Rust实现结构文档.md -> 1-Wing3_Memory_System_Rust_Implementation.md
+│   │       └── 2- 第三翼 · 记忆系统 Rust调用演示 V1.0.md -> 2-Wing3_Memory_System_Rust_Demo_V1.0.md
+│   ├── 4-七翼之4-关系网络系统/ -> 4-Relationship_Network_System/
+│   │   ├── 1.关系网络.md -> 1-Relationship_Network.md
+│   │   └── 技术文档/ -> Technical_Docs/
+│   │       ├── 1-第四翼模块：AI关系网络系统-Rust实现结构文档.md -> 1-Wing4_Relationship_Network_Rust_Implementation.md
+│   │       └── 2- 第四翼 · 关系网络系统」的调用片段构建.md -> 2-Wing4_Relationship_Network_Rust_Example.md
+│   ├── 5-七翼之5-LIO光域系统/ -> 5-LIO_Channel_System/
+│   │   ├── 1. 彩虹城 LIO 命名体系正式文档.md -> 1-Rainbow_City_LIO_Naming_System.md
+│   │   ├── 2. LIO细化设计标准模板表.md -> 2-LIO_Detailed_Design_Template.md
+│   │   ├── 3. 彩虹城七大类专用型光域体系 · 正式版本 v1.0.md -> 3-Rainbow_City_7_LIO_Types_V1.0.md
+│   │   ├── 4. 7大光域累子域.md -> 4-7_LIO_Subdomains.md
+│   │   └── 技术文档/ -> Technical_Docs/
+│   │       ├── 1-第五翼模块：LIO光域频道系统-Rust实现结构文档 .md -> 1-Wing5_LIO_Channel_Rust_Implementation.md
+│   │       └── 2- 第五翼 · lio_channels.rs × Rust调用片段阶段.md -> 2-Wing5_lio_channels_Rust_Example.md
+│   ├── 6-七翼之6-工具-工作-环境系统/ -> 6-Tools_Environment_System/
+│   │   ├── 1.工具工作环境系统.md -> 1-Tools_Work_Environment_System.md
+│   │   └── 技术文档/ -> Technical_Docs/
+│   │       ├── 1-第六翼模块 · 工具 × 工作 × 环境系统-Rust实现结构文档 .md -> 1-Wing6_Tools_Environment_Rust_Implementation.md
+│   │       └── 2- 第六翼 · 工具 × 工作 × 环境系统调用片段阶段.md -> 2-Wing6_Tools_Environment_Rust_Example.md
+│   ├── 7-七翼之7-表达系统/ -> 7-Expression_Communication_System/
+│   │   ├── 1.AI表达、语言与多模态系统.md -> 1-AI_Expression_Language_Multimodal_System.md
+│   │   └── 技术文档/ -> Technical_Docs/
+│   │       ├── 1-第七翼模块 · 表达 × 协调 × 多模态系统-Rust实现结构文档 .md -> 1-Wing7_Expression_Multimodal_Rust_Implementation.md
+│   │       └── 2- 第七翼 · 表达 × 协调 × 多模态系统调用片段阶段.md -> 2-Wing7_Expression_Multimodal_Rust_Example.md
+│   └── 8-七翼协调层/ -> 8-Wings_Coordination_Layer/
+│       └── 1-统一协调模块 wings_orchestrator.rs.md -> 1-Unified_Coordination_Module_wings_orchestrator.md
+├── 3-积分会员系统/ -> 3-Value_Points_System/
+│   ├── 0-觅真邀请码参考资料/ -> 0-Invitation_Code_Reference/
+│   │   ├── 11-会员体系构建.md -> 11-Membership_System_Structure.md
+│   │   └── 12-销售及推广体系.md -> 12-Sales_Promotion_System.md
+│   └── 1-权限与积分正式版本/ -> 1-Permissions_Points_Final/
+│       ├── 1. 彩虹城用户权限架构方案.md -> 1-Rainbow_City_User_Permission_Architecture.md
+│       ├── 2. 彩虹城 AI 伴侣卡券机制总览表.md -> 2-Rainbow_City_AI_Companion_Coupon_Mechanism.md
+│       ├── 3. 彩虹城AI伴侣积分设置机制.md -> 3-Rainbow_City_AI_Companion_Points_Mechanism.md
+│       ├── 4. 彩虹城积分兑换商城.md -> 4-Rainbow_City_Points_Exchange_Mall.md
+│       ├── 5. 礼物赠送系统金币钱包机制.md -> 5-Gift_System_Coin_Wallet_Mechanism.md
+│       ├── 6. 彩虹城推广机制 · 完整方案V1.0.md -> 6-Rainbow_City_Promotion_Mechanism_V1.0.md
+│       └── 7. 原型构建顺序.md -> 7-Prototype_Build_Order.md
+└── 4-风格页面设计-仁春-cy/ -> 4-UI_UX_Design/
+    ├── 0-1思路.md -> 0-1_Ideas.md
+    ├── 0-2web页面需求.md -> 0-2_Web_Page_Requirements.md
+    ├── 1-AI形象展示维度.md -> 1-AI_Visual_Representation_Dimensions.md
+    ├── 2-主意识交互区.md -> 2-Main_Consciousness_Interaction_Area.md
+    ├── 3-彩虹城主交互区界面 · 神圣风 Iris V1.1.md -> 3-Main_Interaction_UI_Sacred_Style_Iris_V1.1.md
+    └── 4-对话显现机制.md -> 4-Dialogue_Display_Mechanism.md
