@@ -2,7 +2,6 @@
 
 
 
-![image-20250408211314192](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250408211314192.png)
 
 
 
@@ -107,7 +106,6 @@
 
 
 
-![image-20250408211414189](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250408211414189.png)
 
 
 

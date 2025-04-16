@@ -136,7 +136,6 @@
 
 
 
-![image-20250408211708509](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250408211708509.png)
 
 
 
@@ -495,10 +494,8 @@
 
 
 
-![image-20250408211819020](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250408211819020.png)
 
 
 
 要以人类与AI对话的形式，Human问，AI回答，
 
-![image-20250408211854649](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20250408211854649.png)
